@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import locale
 from datetime import datetime
 import streamlit as st 
-from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_extras.metric_cards import style_metric_cards 
 import requests
 
 # -----------------------
@@ -357,7 +357,7 @@ def pagina_geral():
                 'A_LIQUIDAR', 'LIQUIDADO_A_PAGAR','PAGO']
         df_foco = df.loc[df['ND'].isin(nd) & (df['DIAS'] > 60) & (df['A_LIQUIDAR'] != 0), cols].sort_values(by=['ND', 'DIAS'], ascending=False).reset_index(drop=True)
         df_foco.reset_index(drop=True)
-        st.markdown('### Planilha de Recursos Disponíveis')
+        st.markdown('### Planilha de Empenhos Atrasados')
         st.dataframe(df_foco, use_container_width=True)
         @st.cache_data
         def convert_df(df):
@@ -402,9 +402,9 @@ def pagina_160():
 
     with col1:
         cols = ['NE', 'A_LIQUIDAR', 'DIAS', 'NOME_NDSI', 'NDSI']
-        df_aux = df_160.loc[:, cols].sort_values(by='A_LIQUIDAR', ascending=False)
+        df_aux = df_160.loc[:, cols].sort_values(by='DIAS', ascending=False)
         df_aux = df_aux[df_aux['A_LIQUIDAR'] != 0].head(10)
-        fig = px.bar(df_aux, 
+        fig = px.bar(df_aux.sort_values(by='A_LIQUIDAR', ascending=False),
                     x='NE', 
                     y='A_LIQUIDAR',
                     labels={'NE':'Nota de Empenho', 'A_LIQUIDAR':'Saldo a liquidar'},
@@ -421,7 +421,7 @@ def pagina_160():
         cols = ['NE', 'A_LIQUIDAR', 'DIAS', 'NOME_NDSI', 'NDSI']
         df_aux = df_160.loc[:, cols].sort_values(by='DIAS', ascending=False)
         df_aux = df_aux[df_aux['A_LIQUIDAR'] != 0].head(10).reset_index(drop=True)
-        st.dataframe(df_aux)
+        st.dataframe(df_aux.sort_values(by='A_LIQUIDAR', ascending=False))
 
     st.markdown('## 10 Notas de Empenhos com maior valor A LIQUIDAR')
         
@@ -545,7 +545,7 @@ def pagina_ND():
         lista_nd)
     
     with col2:     
-        nr_ne = st.slider('Escolha a Quantidade de NE que serão visualizadas.', 0, 25, 5)
+        nr_ne = st.slider('Escolha a Quantidade de NE que serão visualizadas.', 0, 20, 10)
     # Dados Gerais por ND
     st.markdown('# Notas de Empenho com maior número de dias')
     # Inserindo colunas 
@@ -560,7 +560,7 @@ def pagina_ND():
                     x='NE', 
                     y='A_LIQUIDAR',
                     labels={'NE':'Nota de Empenho', 'A_LIQUIDAR':'Saldo a liquidar'},
-                    text_auto='.3s',
+                    text_auto='.5s',
                     color='DIAS',
                     color_continuous_scale = 'reds',
                     log_y=True,
@@ -585,7 +585,7 @@ def pagina_ND():
                     x='NE', 
                     y='A_LIQUIDAR',
                     labels={'NE':'Nota de Empenho', 'A_LIQUIDAR':'Saldo a liquidar'},
-                    text_auto='.3s',
+                    text_auto='.5s',
                     color='DIAS',
                     color_continuous_scale = 'reds',
                     log_y=True,
@@ -607,7 +607,9 @@ def pagina_acao():
    
     opcao_acao = st.selectbox(
     'Selecione a Ação',
-    lista_acao)
+    lista_acao,
+    index=None,
+    placeholder="Selecione a Ação")
     
     # Dados Gerais por Ação Orçamentária
 
