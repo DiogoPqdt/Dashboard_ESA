@@ -110,7 +110,7 @@ with st.sidebar:
 
 # Função para a página Recursos Gerais
 def pagina_geral():
-    tab1, tab2 = st.tabs([ 'Recursos Empenhados', 'Recursos para Empenho'])
+    tab1, tab2, tab3 = st.tabs([ 'Recursos Empenhados', 'Recursos para Empenho', 'Empenhos atraso'])
     with tab1:
         st.markdown("# Recursos Gerais - ESA")
         st.markdown("### Essa página visa apresentar uma visão macro dos recursos da ESA!")
@@ -186,7 +186,7 @@ def pagina_geral():
                         x='NE', 
                         y='A_LIQUIDAR',
                         labels={'NE':'Nota de Empenho', 'A_LIQUIDAR':'Saldo a liquidar'},
-                        text_auto= '.3s', # type: ignore
+                        text_auto= '.5s', # type: ignore
                         color='DIAS',
                         color_continuous_scale = 'reds',
                         log_y=True,
@@ -213,7 +213,7 @@ def pagina_geral():
                         x='NE', 
                         y='A_LIQUIDAR',
                         labels={'NE':'Nota de Empenho', 'A_LIQUIDAR':'Saldo a liquidar'},
-                        text_auto='.3s',
+                        text_auto= '.5s',
                         color='A_LIQUIDAR',
                         color_continuous_scale = 'reds',
                         log_y=True,
@@ -248,7 +248,7 @@ def pagina_geral():
             style_metric_cards()
             
         st.divider()
-
+        st.markdown('## Recursos por ND')
         # Recursos disponíveis por ND
         col1, col2 = st.columns(2, gap='large')
 
@@ -260,10 +260,10 @@ def pagina_geral():
             fig = px.bar(df_aux,
                          x = 'ND',
                          y = 'Soma de Valor',
-                         title='Recurso a ser empenhado por ND',
                          labels={'ND':'Natureza da Despesa', 'Soma de Valor':'Recurso para empenhar'},
                          text_auto='.3s',
                          height=500,
+                         log_y=True,
                          color='Soma de Valor',
                          color_continuous_scale = 'reds',
                          template='plotly_dark')
@@ -277,12 +277,50 @@ def pagina_geral():
             df_aux = df_recursos.loc[:,['ND', 'PI','Soma de Valor']].groupby(by= ['ND']).sum().sort_values(by='Soma de Valor', ascending=False).reset_index()
 
             fig = px.pie(df_aux, values='Soma de Valor', 
-                                 names='ND', 
-                                 title='Porcentagem de Recurso por ND',
+                                 names='ND',
                                  color_discrete_sequence=px.colors.sequential.RdBu,
                                  template='plotly_dark')
-            fig.update_traces(textposition='outside',
-                              hole=.6,
+            fig.update_traces(textposition='inside',
+                              textinfo='percent+label',
+                              marker=dict(line=dict(color='#000000', width=2)))
+            fig.update(layout_showlegend=False)
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+        st.divider()
+        st.markdown('## Recurso por PI')
+        # Recursos disponíveis por ND
+        col1, col2 = st.columns(2, gap='large')
+
+        with col1:
+           
+            # Recursos disponíveis por PI
+            df_aux = df_recursos.loc[:,['PI','Soma de Valor']].groupby(by= ['PI']).sum().sort_values(by='Soma de Valor', ascending=False).reset_index()
+
+            fig = px.bar(df_aux,
+                         x = 'PI',
+                         y = 'Soma de Valor',
+                         labels={'PI':'Programa Interno', 'Soma de Valor':'Recurso para empenhar'},
+                         text_auto='.3s',
+                         height=500,
+                         log_y=True,
+                         color='Soma de Valor',
+                         color_continuous_scale = 'reds',
+                         template='plotly_dark')
+            fig.update_traces(textposition = 'outside', cliponaxis = False, hovertemplate=None)
+            fig.update_layout(hovermode="x unified")
+
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            # Porcentagem de Recursos por ND
+            df_aux = df_recursos.loc[:,['PI','Soma de Valor']].groupby(by= ['PI']).sum().sort_values(by='Soma de Valor', ascending=False).reset_index()
+
+            fig = px.pie(df_aux, values='Soma de Valor', 
+                                 names='PI',
+                                 color_discrete_sequence=px.colors.sequential.RdBu,
+                                 template='plotly_dark')
+            fig.update_traces(textposition='inside',
                               textinfo='percent+label',
                               marker=dict(line=dict(color='#000000', width=2)))
             fig.update(layout_showlegend=False)
@@ -304,6 +342,34 @@ def pagina_geral():
             label="Download Recursos Disponíveis",
             data=csv,
             file_name='Recursos_disponíveis.csv',
+            mime='text/csv')
+        
+    with tab3:
+        st.markdown("# Empenhos que devem ser cobrados pelo Almox - ESA")
+        st.markdown("### Essa página visa filtrar os empenhos que devem ser cobrados quanto a entrega")
+        st.divider()
+
+        
+        nd = ['449052', '339030' ]
+        cols = ['UG', 'ANO', 'CREDOR', 'NOME_CREDOR',
+                'DATA', 'DIAS', 'ND', 'NDSI', 'NOME_NDSI', 
+                'NE', 'PI', 'NOME_PI', 'UGR', 'NOME_UGR', 
+                'A_LIQUIDAR', 'LIQUIDADO_A_PAGAR','PAGO']
+        df_foco = df.loc[df['ND'].isin(nd) & (df['DIAS'] > 60) & (df['A_LIQUIDAR'] != 0), cols].sort_values(by=['ND', 'DIAS'], ascending=False).reset_index(drop=True)
+        df_foco.reset_index(drop=True)
+        st.markdown('### Planilha de Recursos Disponíveis')
+        st.dataframe(df_foco, use_container_width=True)
+        @st.cache_data
+        def convert_df(df):
+            # IMPORTANT: Cache the conversion to prevent computation on every rerun
+            return df.to_csv().encode('utf-8')
+                
+        csv = convert_df(df_foco)
+                
+        st.download_button(
+            label="Download Empenhos em atraso",
+            data=csv,
+            file_name='Retorno_Empenhos_Atraso.csv',
             mime='text/csv')
         
 
