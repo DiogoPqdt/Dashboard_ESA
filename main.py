@@ -69,16 +69,20 @@ caminho_3 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\
 
 caminho_4 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(3).csv"
 
+caminho_5 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(4).csv"
+
+
 @st.cache_data
-def load_data(caminho_1, caminho_2, caminho_3, caminho_4):
+def load_data(caminho_1, caminho_2, caminho_3, caminho_4, caminho_5):
     # Leitura dos arquivos .CSV em DataFrames individuais
     df1 = pd.read_csv(caminho_1)
     df2 = pd.read_csv(caminho_2)
     df3 = pd.read_csv(caminho_3)
     df4 = pd.read_csv(caminho_4)
+    df5 = pd.read_csv(caminho_5)
 
     # Concatenação dos DataFrames em um único DataFrame
-    df = pd.concat([df1, df2, df3, df4], ignore_index=True)
+    df = pd.concat([df1, df2, df3, df4, df5], ignore_index=True)
 
     # Excluindo linhas que contenham a string "Tela" em qualquer coluna
     df = df[~df.apply(lambda row: row.astype(str).str.contains('Tela')).any(axis=1)]
@@ -96,7 +100,7 @@ def load_data(caminho_1, caminho_2, caminho_3, caminho_4):
     df['DIAS'] = df['DIAS'].astype(int)
     return df
 
-df = load_data(caminho_1=caminho_1, caminho_2=caminho_2, caminho_3=caminho_3, caminho_4=caminho_4)
+df = load_data(caminho_1=caminho_1, caminho_2=caminho_2, caminho_3=caminho_3, caminho_4=caminho_4, caminho_5=caminho_5)
 
 # ------------------------------------------
 #       STREAMLIT
