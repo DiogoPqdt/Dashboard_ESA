@@ -141,6 +141,7 @@ def pagina_geral():
         with col3:
             st.metric(label="Total Liquidado a Pagar", value=locale.currency(total_liquidado_a_pagar, grouping=True))
             style_metric_cards()
+        st.divider()
 
         # Saldos Exercícios Correntes
         st.markdown('# Dados Ano Corrente')
@@ -161,6 +162,7 @@ def pagina_geral():
         with col3:
             st.metric(label="Total Liquidado a Pagar", value=locale.currency(total_liquidado_a_pagar, grouping=True))
             style_metric_cards()
+        st.divider()
 
         # Saldos Exercícios RPNP
         st.markdown('# Dados de Restos a Pagar')
@@ -181,6 +183,7 @@ def pagina_geral():
         with col3:
             st.metric(label="Total Liquidado a Pagar", value=locale.currency(total_liquidado_a_pagar, grouping=True))
             style_metric_cards()
+        st.divider()
 
         st.markdown('## 10 Notas de Empenhos com mais tempo')
 
@@ -208,6 +211,7 @@ def pagina_geral():
             df_aux = df.loc[:, cols].sort_values(by='DIAS', ascending=False)
             df_aux = df_aux[df_aux['A_LIQUIDAR'] != 0].head(10).reset_index(drop=True)
             st.dataframe(df_aux)
+        st.divider()
 
         st.markdown('## 10 Notas de Empenhos com maior valor A LIQUIDAR')
 
