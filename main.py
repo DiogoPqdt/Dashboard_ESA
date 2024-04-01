@@ -61,32 +61,32 @@ ano_atual = str(datetime.now().year)
 # Realizando a junção dos 3 arquivos .CSV num único DataFrame
 
 # Caminhos para os arquivos .CSV
-caminho_1 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini.csv"
+caminho_1 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini.csv"
 
-caminho_2 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(1).csv"
+caminho_2 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini(1).csv"
 
-caminho_3 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(2).csv"
+#caminho_3 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini(2).csv"
 
-caminho_4 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(3).csv"
+#caminho_4 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini(3).csv"
 
-caminho_5 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(4).csv"
+#caminho_5 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini(4).csv"
 
-caminho_6 = r"C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Cel Manfrini(5).csv"
+#caminho_6 = r"C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Cel Manfrini(5).csv"
 
 
 
 @st.cache_data
-def load_data(caminho_1, caminho_2, caminho_3, caminho_4, caminho_5, caminho_6):
+def load_data(caminho_1, caminho_2):
     # Leitura dos arquivos .CSV em DataFrames individuais
     df1 = pd.read_csv(caminho_1)
     df2 = pd.read_csv(caminho_2)
-    df3 = pd.read_csv(caminho_3)
-    df4 = pd.read_csv(caminho_4)
-    df5 = pd.read_csv(caminho_5)
-    df6 = pd.read_csv(caminho_6)
+    #df3 = pd.read_csv(caminho_3)
+    #df4 = pd.read_csv(caminho_4)
+    #df5 = pd.read_csv(caminho_5)
+    #df6 = pd.read_csv(caminho_6)
 
     # Concatenação dos DataFrames em um único DataFrame
-    df = pd.concat([df1, df2, df3, df4, df5, df6], ignore_index=True)
+    df = pd.concat([df1, df2], ignore_index=True)
 
     # Excluindo linhas que contenham a string "Tela" em qualquer coluna
     df = df[~df.apply(lambda row: row.astype(str).str.contains('Tela')).any(axis=1)]
@@ -104,7 +104,7 @@ def load_data(caminho_1, caminho_2, caminho_3, caminho_4, caminho_5, caminho_6):
     df['DIAS'] = df['DIAS'].astype(int)
     return df
 
-df = load_data(caminho_1=caminho_1, caminho_2=caminho_2, caminho_3=caminho_3, caminho_4=caminho_4, caminho_5=caminho_5, caminho_6=caminho_6)
+df = load_data(caminho_1=caminho_1, caminho_2=caminho_2)
 
 # ------------------------------------------
 #       STREAMLIT
@@ -118,7 +118,7 @@ with st.sidebar:
 
 # Função para a página Recursos Gerais
 def pagina_geral():
-    tab1, tab2, tab3 = st.tabs([ 'Recursos Empenhados', 'Recursos para Empenho', 'Empenhos atraso'])
+    tab1, tab2, tab3 = st.tabs([ 'Recursos Empenhados', 'Recursos para Empenho', 'Empenhos em RPNP'])
     with tab1:
         st.markdown("# Recursos Gerais - ESA")
         st.markdown("### Essa página visa apresentar uma visão macro dos recursos da ESA!")
@@ -150,27 +150,6 @@ def pagina_geral():
         total_pago = df_corrente['PAGO'].sum().round(2)
         total_a_liquidar = df_corrente['A_LIQUIDAR'].sum().round(2)
         total_liquidado_a_pagar = df_corrente['LIQUIDADO_A_PAGAR'].sum().round(2)
-
-        col1, col2, col3 = st.columns(3, gap='large')
-
-        with col1:
-            st.metric(label="Total Pago", value=locale.currency(total_pago, grouping=True))
-
-        with col2:
-            st.metric(label="Total a liquidar", value=locale.currency(total_a_liquidar, grouping=True))
-
-        with col3:
-            st.metric(label="Total Liquidado a Pagar", value=locale.currency(total_liquidado_a_pagar, grouping=True))
-            style_metric_cards()
-        st.divider()
-
-        # Saldos Exercícios RPNP
-        st.markdown('# Dados de Restos a Pagar')
-        df_restos = df[df['ANO'] != ano_atual]
-
-        total_pago = df_restos['PAGO'].sum().round(2)
-        total_a_liquidar = df_restos['A_LIQUIDAR'].sum().round(2)
-        total_liquidado_a_pagar = df_restos['LIQUIDADO_A_PAGAR'].sum().round(2)
 
         col1, col2, col3 = st.columns(3, gap='large')
 
@@ -243,7 +222,7 @@ def pagina_geral():
     with tab2:
         st.markdown("# Notas de Crédito - ESA")
         st.markdown("### Essa página visa apresentar os saldos disponíveis para a ESA")
-        df_recursos = pd.read_excel(r'C:\Users\User\OneDrive\Trabalho\ESA 2023\Dashboard_ESA\base_dados\Recursos_Disponiveis.xlsx', sheet_name='Recursos_ESA')
+        df_recursos = pd.read_excel(r'C:\Users\User\OneDrive\Trabalho\ESA 2024\Dashboard_ESA\base_dados\Recursos_Disponiveis.xlsx', sheet_name='Recursos_ESA')
         df_recursos = df_recursos[['ND', 'UG Emissora', 'PI', 'Descrição PI', 'Detalhe Descrição PI', 'Soma de Valor']]
 
         # Convertendo tipos de colunas
@@ -357,31 +336,46 @@ def pagina_geral():
             mime='text/csv')
         
     with tab3:
-        st.markdown("# Empenhos que devem ser cobrados pelo Almox - ESA")
-        st.markdown("### Essa página visa filtrar os empenhos que devem ser cobrados quanto a entrega")
+        st.markdown("# Empenhos inscritos em RPNP")
+        st.markdown("### Essa página visa filtrar os empenhos que foram inscritos em RPNP para o ano de 2024")
         st.divider()
-
         
-        nd = ['449052', '339030' ]
-        cols = ['UG', 'ANO', 'CREDOR', 'NOME_CREDOR',
+        data = ['2022', '2023']
+        cols = ['UG', 'ANO', 'NOME_CREDOR',
                 'DATA', 'DIAS', 'ND', 'NDSI', 'NOME_NDSI', 
                 'NE', 'PI', 'NOME_PI', 'UGR', 'NOME_UGR', 
                 'A_LIQUIDAR', 'LIQUIDADO_A_PAGAR','PAGO']
-        df_foco = df.loc[df['ND'].isin(nd) & (df['DIAS'] > 60) & (df['A_LIQUIDAR'] != 0), cols].sort_values(by=['ND', 'DIAS'], ascending=False).reset_index(drop=True)
-        df_foco.reset_index(drop=True)
-        st.markdown('### Planilha de Empenhos Atrasados')
-        st.dataframe(df_foco, use_container_width=True)
+        df_restos = df.loc[(df['ANO'].isin(data)) & (df['A_LIQUIDAR'] != 0), cols].sort_values(by='A_LIQUIDAR', ascending=False).reset_index(drop=True)
+        df_restos.reset_index(drop=True)
+        
+        
+        col1, col2 = st.columns(2, gap='large')
+
+        with col1:
+            st.metric(label="Número de Empenhos", value=df_restos.shape[0])
+
+        with col2:
+            total_a_liquidar = df_restos['A_LIQUIDAR'].sum().round(2)
+            st.metric(label="Total a liquidar", value=locale.currency(total_a_liquidar, grouping=True))
+
+            style_metric_cards()
+        st.divider()
+
+        
+        st.markdown('### Planilha de Empenhos em RPNP')
+        st.dataframe(df_restos, use_container_width=True)
+        
         @st.cache_data
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
             return df.to_csv().encode('utf-8')
                 
-        csv = convert_df(df_foco)
+        csv = convert_df(df_restos)
                 
         st.download_button(
-            label="Download Empenhos em atraso",
+            label="Download RPNP",
             data=csv,
-            file_name='Retorno_Empenhos_Atraso.csv',
+            file_name='Retorno_RPNP.csv',
             mime='text/csv')
         
 
@@ -709,12 +703,12 @@ def pagina_cnpj():
     df_cnpj = df[df['NOME_PI'] != 'AUXILIO FINANCEIRO NÃO INDENIZÁVEL']
     df_cnpj = df[df['NOME_PI'] != 'INRE - RESTITUICAO E RESSARCIMENTO']
     df_cnpj = df[df['NOME_NDSI'] != 'OUTROS SERV.DE TERCEIROS PJ- PAGTO ANTECIPADO']
-    df_cnpj = df[df['CREDOR'] != '160129']
-    df_cnpj['CREDOR'].unique()
+    df_cnpj = df[df['FAV'] != '160129']
+    df_cnpj['FAV'].unique()
     
     option = st.selectbox(
     'Qual CNPJ deseja realizar consulta?',
-    df_cnpj['CREDOR'].unique())
+    df_cnpj['FAV'].unique())
     
     
     # Chamar a função e atribuir o resultado ao dicionário
